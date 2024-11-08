@@ -71,6 +71,8 @@ def process(opt: Options, path):
     name = os.path.splitext(os.path.basename(path))[0]
     print(f'[INFO] Processing {path} --> {name}')
     os.makedirs(opt.workspace, exist_ok=True)
+    os.makedirs(os.path.join(opt.workspace, 'meshes'), exist_ok=True)
+    os.makedirs(os.path.join(opt.workspace, 'videos'), exist_ok=True)
 
     input_image = kiui.read_image(path, mode='uint8')
 
@@ -104,7 +106,7 @@ def process(opt: Options, path):
             gaussians = model.forward_gaussians(input_image)
         
         # save gaussians
-        model.gs.save_ply(gaussians, os.path.join(opt.workspace, name + '.ply'))
+        model.gs.save_ply(gaussians, os.path.join(opt.workspace, 'meshes', name + '.ply'))
 
         # render 360 video 
         images = []
@@ -145,7 +147,7 @@ def process(opt: Options, path):
                 images.append((image.squeeze(1).permute(0,2,3,1).contiguous().float().cpu().numpy() * 255).astype(np.uint8))
 
         images = np.concatenate(images, axis=0)
-        imageio.mimwrite(os.path.join(opt.workspace, name + '.mp4'), images, fps=30)
+        imageio.mimwrite(os.path.join(opt.workspace, 'videos', name + '.mp4'), images, fps=30)
 
 
 assert opt.test_path is not None
